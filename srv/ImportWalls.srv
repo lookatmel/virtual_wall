@@ -1,0 +1,3 @@
+move_base_virtual_wall_server/VirtualWall[] walls
+---
+bool status

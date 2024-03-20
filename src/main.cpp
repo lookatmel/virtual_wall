@@ -12,6 +12,8 @@
 #include <move_base_virtual_wall_server/CreateWall.h>
 #include <move_base_virtual_wall_server/DeleteWall.h>
 #include <move_base_virtual_wall_server/DeleteAll.h>
+#include <move_base_virtual_wall_server/ImportWalls.h>
+
 
 class IDPointCloud
 {
@@ -47,6 +49,7 @@ class VirtualWallServer
       create_wall_service = private_nh.advertiseService("create_wall", &VirtualWallServer::createWall, this);
       delete_wall_service = private_nh.advertiseService("delete_wall", &VirtualWallServer::deleteWall, this);
       delete_all_service = private_nh.advertiseService("delete_all", &VirtualWallServer::deleteAll, this);
+      import_walls_service = private_nh.advertiseService("import_walls", &VirtualWallServer::importWalls, this);
 
       ros::Rate r(10);
 
@@ -72,6 +75,7 @@ class VirtualWallServer
     ros::ServiceServer create_wall_service;
     ros::ServiceServer delete_wall_service;
     ros::ServiceServer delete_all_service;
+    ros::ServiceServer import_walls_service;
 
     void mapCallback(const nav_msgs::OccupancyGridConstPtr& msg)
     {
@@ -130,6 +134,24 @@ class VirtualWallServer
       clouds_.clear();
       res.status = true;
       return 1;
+    }
+
+    bool importWalls(move_base_virtual_wall_server::ImportWalls::Request &req, move_base_virtual_wall_server::ImportWalls::Response &res)
+    {
+      clouds_.clear();
+      for(auto &item : req.walls)
+      {
+        IDPointCloud id_pc;
+        id_pc.id = item.id;
+        id_pc.start_x = item.start_point.x;
+        id_pc.start_y = item.start_point.y;
+        id_pc.end_x = item.end_point.x;
+        id_pc.end_y = item.end_point.y;
+        createLineCloud (item.start_point.x, item.end_point.x, item.start_point.y, item.end_point.y, id_pc.pc);
+        clouds_.push_back(id_pc);
+      }
+      res.status = true;
+      return true;
     }
 
     bool deleteWallHandler(int id)
