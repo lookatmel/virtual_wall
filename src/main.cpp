@@ -79,7 +79,7 @@ class VirtualWallServer
 
     void mapCallback(const nav_msgs::OccupancyGridConstPtr& msg)
     {
-      if (first_map_received_)return;
+      // if (first_map_received_)return;
 
       double origin_x = msg->info.origin.position.x;
       double origin_y = msg->info.origin.position.y;
@@ -89,6 +89,7 @@ class VirtualWallServer
 
       map_.resizeMap(size_x, size_y, resolution, origin_x, origin_y);
       first_map_received_ = true;
+
       return;
     }
 
